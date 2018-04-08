@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
     <title>Geolocation</title>
@@ -7,7 +8,7 @@
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
       #map {
-        height: 100%;
+        height: 80%;
       }
       /* Optional: Makes the sample page fill the window. */
       html, body {
@@ -15,30 +16,51 @@
         margin: 0;
         padding: 0;
       }
-		#directions-panel {
+	  		#directions-panel {
 		margin-top: 10px;
 		background-color: #FFEE77;
 		padding: 10px;
 		overflow: scroll;
 		height: 174px;
       }
+	  		#elevation_chart{
+		margin-top: 10px;
+		background-color: #FFEE77;
+		padding: 10px;
+		overflow: scroll;
+		height: 174px;
+      }
+      
+            html, heyo
+      {
+      	color: white;
+      }
+      
     </style>
+	    <script src="https://www.google.com/jsapi"></script>
+
   </head>
 <body>
+
 <div>
-Name: <input type="text" id="myText" value="Mickey">
+<heyo><b>
+Miles you would like to go: 
+</b></heyo>
+<input type="text" id=myText onfocus="this.value=''" value="Distance">
 
-<p>Click the button to change the value of the text field.</p>
-
-<button onclick="getRad()">Try it</button>
-
-
+<button onclick="getRad()">Lets Go!</button>
 </div>
+
+<div id="elevation_chart"></div>
 
 <div id="map"></div>
 
 <div id="directions-panel"></div>
+
+
 <script>
+	 // Load the Visualization API and the columnchart package.
+    google.load('visualization', '1', {packages: ['columnchart']});
 	//http://www.movable-type.co.uk/scripts/latlong.html
 	// used to get the distance from coords
 	var map;
@@ -52,23 +74,20 @@ Name: <input type="text" id="myText" value="Mickey">
 	  }
 	  map = new google.maps.Map(document.getElementById('map'), mapOptions);
 	  directionsDisplay.setMap(map);
-
           calcRoute(pos, coord1,coord2,coord3,directionsService, directionsDisplay);
         //});
 	}
 	function updateMap(){
 		 navigator.geolocation.getCurrentPosition(function (position) {
 			 initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			 map.setCenter(initialLocation);
+			 map.panTo(initialLocation);
 		 });
 		
 	}
-
 	function calcRoute(start,position1,position2,position3,directionsService,directionsDisplay) {
 	  var start = start;
 	  var end = start;
 	  var waypts = [position1,position2,position3];
-
 	  var request = {
         origin: start,
         destination:start,
@@ -84,6 +103,8 @@ Name: <input type="text" id="myText" value="Mickey">
             var summaryPanel = document.getElementById('directions-panel');
             summaryPanel.innerHTML = '';
 			
+			var totalDistance=0;
+			var  ans;
             // For each route, display summary information.
             for (var i = 0; i < route.legs.length; i++) {
               var routeSegment = i + 1;
@@ -92,9 +113,12 @@ Name: <input type="text" id="myText" value="Mickey">
               summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
               summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
               summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+			  ans = route.legs[i].distance.text
+			  var tests = ans.substr(0, ans.indexOf(' '));
+			  totalDistance+=parseFloat(tests);
 			  
             }
-
+			summaryPanel.innerHTML+='<b>Total Distance: '+totalDistance+'</b><br>';
 		}
 		else{document.getElementById('nope2').value = "notgivenaFuck";}
 	  });
@@ -116,6 +140,7 @@ Name: <input type="text" id="myText" value="Mickey">
 	
 	function init(a)
 	{
+	
 		  if (navigator.geolocation) 
 		  {
 		
@@ -125,14 +150,27 @@ Name: <input type="text" id="myText" value="Mickey">
 			  lng: position.coords.longitude
 			};
 			var pos2 = [position.coords.latitude,position.coords.longitude];
-			var newpos1 = goSomeWhere(pos2[0],pos2[1],a,pos,0);
-			var newpos2 = goSomeWhere(pos2[0],pos2[1],a,pos,45);
-			var newpos3 = goSomeWhere(pos2[0],pos2[1],a,pos,-45);
+			var newpos1 = goSomeWhere(pos2[0],pos2[1],a,pos,90);
+			var newpos2 = goSomeWhere(pos2[0],pos2[1],a,pos,45+90);
+			var newpos3 = goSomeWhere(pos2[0],pos2[1],a,pos,-45+90);
 			
 			var coord1 = {location:{lat: newpos3[0],lng: newpos3[1]}};				
 			var coord2 = {location:{lat: newpos1[0],lng: newpos1[1]}};				
-			var coord3 = {location:{lat: newpos2[0],lng: newpos2[1]}};			
+			var coord3 = {location:{lat: newpos2[0],lng: newpos2[1]}};	
+			
+			var coord11 = {lat: newpos3[0],lng: newpos3[1]};				
+			var coord22 = {lat: newpos1[0],lng: newpos1[1]};				
+			var coord33 = {lat: newpos2[0],lng: newpos2[1]};				
 			initMap(pos, coord1,coord2,coord3);
+			//get paths
+			var path = [pos,coord11,coord22,coord33,pos];
+			// Create an ElevationService.
+			var elevator = new google.maps.ElevationService;
+			// Initiate the path request.
+			elevator.getElevationAlongPath({
+			  'path': path,
+			  'samples': 256
+			}, plotElevation);
 			setInterval(updateMap,500);
 			
 			});
@@ -142,7 +180,34 @@ Name: <input type="text" id="myText" value="Mickey">
 		  handleLocationError(false, infoWindow, map.getCenter());
 		}
 	}
-
+	
+	function plotElevation(elevations, status) {
+        var chartDiv = document.getElementById('elevation_chart');
+        if (status !== 'OK') {
+          // Show the error code inside the chartDiv.
+          chartDiv.innerHTML = 'Cannot show elevation: request failed because ' +
+              status;
+          return;
+        }
+        // Create a new chart in the elevation_chart DIV.
+        var chart = new google.visualization.ColumnChart(chartDiv);
+        // Extract the data from which to populate the chart.
+        // Because the samples are equidistant, the 'Sample'
+        // column here does double duty as distance along the
+        // X axis.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Sample');
+        data.addColumn('number', 'Elevation');
+        for (var i = 0; i < elevations.length; i++) {
+          data.addRow(['', elevations[i].elevation]);
+        }
+        // Draw the chart using the data within its DIV.
+        chart.draw(data, {
+          height: 150,
+          legend: 'none',
+          titleY: 'Elevation (m)'
+        });
+      }
 	/*
 	function ShowPath(p1,p2)
 	{
@@ -150,10 +215,8 @@ Name: <input type="text" id="myText" value="Mickey">
 	
 	}
 	*/
-
 	function getRad() {
-
-	  var dis = parseInt(document.getElementById('myText').value);
+	  var dis = parseFloat(document.getElementById('myText').value);
 	  var rad = (((dis/3.14))*1.60934)*.725;// to km // also reduce the length since not going to get a perfect route
 	  init(rad); // convert miles to km to make it easier to do the math
 	}
@@ -162,5 +225,5 @@ Name: <input type="text" id="myText" value="Mickey">
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBLeq5PYqVs4OKZEDJSsV1X3-ePPme3Grc&callback=initMap">
     </script>
-
 </body>
+</html>

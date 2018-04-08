@@ -29,7 +29,7 @@ h1, h2, h3
 
 
 .about-callout {
-    color: white;
+    
     margin-top: -20px;
     padding-top: 50px;
     padding-bottom: 50px;
@@ -52,20 +52,37 @@ h1, h2, h3
 }
 .navbar-default .navbar-brand,
 .navbar-default .navbar-nav li a {
-    color: white;
+    color: #1cbbb4;
 }
 
 
 html, body{
 	font-size:16px;
 	//color: #f3f3f3;
-	background-color: #063647; 
+	background: #02111D;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #02111D, #037BB5, #02111D);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #02111D, #037BB5, #02111D); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+	
 }
 
 .image, .image img, .progress {
+    display: block;
+}.image, .image img, .progress {
     display: block;
 }
 
 .section-2 {
 	//background-color: #052D3D;
 }
+.select-callout {
+    margin-top: 50px;
+}
+.btn 
+{
+    
+    height:50px;
+    width:100px;
+
+}
+
