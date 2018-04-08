@@ -1,4 +1,4 @@
- <html>
+<html>
     <head>
     <title>Geolocation</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -22,44 +22,20 @@
 		overflow: scroll;
 		height: 174px;
       }
-      
-      html, heyo
-      {
-          color: white;
-      }
     </style>
   </head>
 <body>
 <div>
-    
-<heyo>
-Distance you would like to go: 
-</heyo>
-<input type="text" id=myText onfocus="this.value=''" value="Distance">
+Name: <input type="text" id="myText" value="Mickey">
 
-<button onclick="getRad()">Lets Go!</button>
+<p>Click the button to change the value of the text field.</p>
 
-<form action="">
-
-  <input type="radio" name="Option A" value="OptionA"> Option A<br>
-  <input type="radio" name="Option B" value="OptionB" >  Option B<br>
-  <input type="radio" name="Option C" value="OptionC"> Option C<br>
-  <input type="radio" name="Option D" value="OptionD"> Option D<br>
-
-</form>
-
-
-
+<button onclick="getRad()">Try it</button>
 
 
 </div>
 
 <div id="map"></div>
-
-<form id = "formTest">
-<input type="text" id=routeName onfocus="this.value=''" value="Save Route Name">
-<button onclick="routeSave()">Save!</button>
-</form>
 
 <div id="directions-panel"></div>
 <script>
@@ -83,7 +59,7 @@ Distance you would like to go:
 	function updateMap(){
 		 navigator.geolocation.getCurrentPosition(function (position) {
 			 initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			 map.panTo(initialLocation);
+			 map.setCenter(initialLocation);
 		 });
 		
 	}
@@ -186,5 +162,5 @@ Distance you would like to go:
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBLeq5PYqVs4OKZEDJSsV1X3-ePPme3Grc&callback=initMap">
     </script>
+
 </body>
-</html>
